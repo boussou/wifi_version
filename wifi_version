@@ -1,10 +1,12 @@
 #!/bin/bash
 # wifi_version
-# This script displays the wifi version from WiFi 4  to WIFI 7
+# Surprisingly enough, Linux does not provide a quick command to get the **maximum WIFI version supported by your laptop**
+# This script displays the wifi versions supported by your Wifi card / laptop on Linux  - From WiFi 4  to WIFI 7
 # Author: Nadir Boussoukaia
 
 # If `iw list` includes one or more of the following modes under "Supported interface modes" or "Supported PHY modes"
-# you can determine your card’s WiFi version:
+# then you can determine your card’s WiFi version:
+#
 #   | WiFi Standard | PHY Mode                   |
 #   |---------------|----------------------------|
 #   | WiFi 4        | `HT` (802.11n)             |
@@ -25,9 +27,6 @@ fi
 # Get the supported PHY modes from iw list without sorting (we'll check in our desired order)
 wifi_info=$(iw list |  grep -E 'HT |VHT |HE |EHT ' | sed 's/^[ \t]*//' | cut -d ' ' -f 1 | uniq)
 
-# Check for 6 GHz support (WiFi 6E)
-iw list | grep -A 20 "Frequencies" | grep -q '6[0-9][0-9][0-9]' && wifi_6e_support="✅ WiFi 6E (6 GHz) Supported" || wifi_6e_support="❌ WiFi 6E (6 GHz) Not Supported"
-
 # Initialize an empty variable to store supported versions
 supported_versions=""
 
@@ -39,6 +38,10 @@ fi
 
 # 2. WiFi 6 (HE) plus the 6 GHz (WiFi 6E) check immediately after
 if echo "$wifi_info" | grep -q '^HE'; then
+
+    # Check for 6 GHz support (WiFi 6E)
+    iw list | grep -A 20 "Frequencies" | grep -q '6[0-9][0-9][0-9]' && wifi_6e_support="✅ WiFi 6E (6 GHz) Supported" || wifi_6e_support="❌ WiFi 6E (6 GHz) Not Supported"
+
     supported_versions+="✅ WiFi 6 (802.11ax)\n$wifi_6e_support\n"
 fi
 
