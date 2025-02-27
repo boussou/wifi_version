@@ -1,4 +1,5 @@
 #!/bin/bash
+# wifi_version
 # This script displays the wifi version from WiFi 4  to WIFI 7
 # Author: Nadir Boussoukaia
 
@@ -22,7 +23,7 @@ fi
 
 # Get the supported PHY modes from iw list
 #wifi_info=$(iw list | grep -Ew 'HT RX|VHT RX|HE RX|EHT RX')
-wifi_info=$(iw list | grep -Ew 'HT RX|VHT RX|HE RX|EHT RX'|sed 's/^[ \t]*//'|sort|cut -d ' ' -f 1-2|uniq)
+wifi_info=$(iw list | grep -E 'HT |VHT |HE |EHT '|sed 's/^[ \t]*//'|cut -d ' ' -f 1|sort|uniq)
 
 # Check for 6 GHz support (WiFi 6E)
 iw list | grep -A 20 "Frequencies" | grep -q '6[0-9][0-9][0-9]' && wifi_6e_support="✅ WiFi 6E (6 GHz) Supported" || wifi_6e_support="❌ WiFi 6E (6 GHz) Not Supported"
@@ -34,10 +35,10 @@ supported_versions=""
 # Loop through each line of wifi_info
 while IFS= read -r line; do
     case "$line" in
-        "HT RX"*) supported_versions+="✅ WiFi 4 (802.11n)\n" ;;
-        "VHT RX"*) supported_versions+="✅ WiFi 5 (802.11ac)\n" ;;
-        "HE RX"*) supported_versions+="✅ WiFi 6 (802.11ax)\n$wifi_6e_support\n";;
-        "EHT RX"*) supported_versions+="✅ WiFi 7 (802.11be)\n" ;;
+        "VHT"*) supported_versions+="✅ WiFi 5 (802.11ac)\n" ;;
+        "HT"*) supported_versions+="✅ WiFi 4 (802.11n)\n" ;;
+        "HE"*) supported_versions+="✅ WiFi 6 (802.11ax)\n$wifi_6e_support\n";;
+        "EHT"*) supported_versions+="✅ WiFi 7 (802.11be)\n" ;;
     esac
 done <<< "$wifi_info"
 
