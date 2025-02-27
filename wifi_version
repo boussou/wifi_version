@@ -21,13 +21,12 @@ if ! command -v iw &> /dev/null; then
     exit 1
 fi
 
+
 # Get the supported PHY modes from iw list
-#wifi_info=$(iw list | grep -Ew 'HT RX|VHT RX|HE RX|EHT RX')
-wifi_info=$(iw list | grep -E 'HT |VHT |HE |EHT '|sed 's/^[ \t]*//'|cut -d ' ' -f 1|sort|uniq)
+wifi_info=$(iw list | grep -E 'HT |VHT |HE |EHT ' | sed 's/^[ \t]*//' | cut -d ' ' -f 1 | sort | uniq)
 
 # Check for 6 GHz support (WiFi 6E)
 iw list | grep -A 20 "Frequencies" | grep -q '6[0-9][0-9][0-9]' && wifi_6e_support="✅ WiFi 6E (6 GHz) Supported" || wifi_6e_support="❌ WiFi 6E (6 GHz) Not Supported"
-
 
 # Initialize an empty variable to store supported versions
 supported_versions=""
@@ -35,10 +34,10 @@ supported_versions=""
 # Loop through each line of wifi_info
 while IFS= read -r line; do
     case "$line" in
+        "EHT"*) supported_versions+="✅ WiFi 7 (802.11be)\n" ;;
+        "HE"*) supported_versions+="✅ WiFi 6 (802.11ax)\n$wifi_6e_support\n" ;;
         "VHT"*) supported_versions+="✅ WiFi 5 (802.11ac)\n" ;;
         "HT"*) supported_versions+="✅ WiFi 4 (802.11n)\n" ;;
-        "HE"*) supported_versions+="✅ WiFi 6 (802.11ax)\n$wifi_6e_support\n";;
-        "EHT"*) supported_versions+="✅ WiFi 7 (802.11be)\n" ;;
     esac
 done <<< "$wifi_info"
 
@@ -48,7 +47,4 @@ if [[ -n "$supported_versions" ]]; then
 else
     echo "❌ No supported WiFi versions detected!"
 fi
-
-
-
 
